@@ -7,7 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <title>PHP Database Connect</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+        integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>PHP CRUD Operation</title>
 
 </head>
 
@@ -69,23 +73,88 @@
                             <th> Email Address </th>
                             <th> Phone </th>
                             <th> Status </th>
+                            <th> Action </th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $array = $clsObj->show();
-                        while ($alldata = $array->fetch_assoc()) {
-                            echo "<tr>
-                                <td>" . $alldata["id"] . "</td>
-                                <td>" . $alldata["name"] . "</td>
-                                <td>" . $alldata["email"] . "</td>
-                                <td>" . $alldata["phone"] . "</td>
-                                <td>" . $alldata["status"] . "</td>
-                                </tr>";
+                        $obj = $clsObj->show();
+
+                        if (isset($_GET['active'])) {
+                            $active = $_GET['active'];
+                            $clsObj->active($active);
+
+                        }
+                        if (isset($_GET['inactive'])) {
+                            $inactive = $_GET['inactive'];
+                            $clsObj->inactive($inactive);
+
+                        }
+                        if (isset($_GET['deleteId'])) {
+                            $deleteId = $_GET['deleteId'];
+                            $clsObj->delete($deleteId);
 
                         }
 
+
+
+                        if ($obj->num_rows > 0) {
+                            $sl = 1;
+                            while ($alldata = $obj->fetch_assoc()) {
+                                if ($alldata["status"] == 1) {
+                                    $status = '<a href="index.php?active=' . $alldata["id"] . '" class="btn btn-info btn-sm">Active</a>';
+                                } else {
+                                    $status = '<a href="index.php?inactive=' . $alldata["id"] . '" class="btn btn-warning btn-sm">Inactive</a>';
+                                }
+
+                                echo '<tr>
+                                    <td>' . $sl . '</td>
+                                    <td>' . $alldata["name"] . '</td>
+                                    <td>' . $alldata["email"] . '</td>
+                                    <td>' . $alldata["phone"] . '</td>
+                                    <td>' . $status . '</td>
+                                    <td>
+                                    <a href="edit.php?editId=' . $alldata["id"] . '" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></a>
+                                 
+                            <button href="index.php?deleteId=' . $alldata["id"] . '" class="btn btn-danger  btn-sm " data-bs-toggle="modal" data-bs-target="#delete' . $alldata["id"] . '"><i class="fa fa-trash"></i></button>
+                            </td>
+                                    </tr>'
+
+                                ;
+                                $sl++;
+                                ?>
+                                <div class="modal fade " id="delete<?php echo $alldata["id"]; ?>" tabindex="-1"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog ">
+                                        <div class="modal-content ">
+                                            <div class="modal-header bg-danger">
+                                                <h5 class="modal-title offset-4" id="exampleModalLabel">DANGER ZONE</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are You Sure to Delete Data?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">NO</button>
+                                                <a href="index.php?deleteId=<?php echo $alldata["id"]; ?>" type="button"
+                                                    class="btn btn-primary">YES</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <?php
+                            }
+                        } else {
+                            echo "<tr><td colspan='6' class='text-center text-danger '</td> <strong>Data Not Found</strong></td></tr>";
+                        }
+
                         ?>
+
 
                     </tbody>
 
